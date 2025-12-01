@@ -1,0 +1,173 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+}
+
+enum CourseStatus {
+  DRAFT
+  PENDING_APPROVAL
+  PUBLISHED
+  ARCHIVED
+}
+
+enum LessonType {
+  VIDEO
+  TEXT
+  PDF
+  QUIZ
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      UserRole @default(STUDENT)
+  avatar    String?
+  bio       String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  coursesCreated     Course[]     @relation("InstructorCourses")
+  enrollments        Enrollment[]
+  reviews            Review[]
+  lessonProgress     LessonProgress[]
+  certificates       Certificate[]
+
+  @@map("users")
+}
+
+model Course {
+  id             String       @id @default(cuid())
+  title          String
+  description    String
+  longDescription String?
+  price          Float
+  originalPrice  Float?
+  thumbnail      String?
+  category       String
+  level          String
+  duration       String?
+  status         CourseStatus @default(DRAFT)
+  isPublished    Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  // Foreign Keys
+  instructorId   String
+  instructor     User         @relation("InstructorCourses", fields: [instructorId], references: [id])
+
+  // Relations
+  lessons        Lesson[]
+  enrollments    Enrollment[]
+  reviews        Review[]
+  certificates   Certificate[]
+
+  @@map("courses")
+}
+
+model Lesson {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  content     String?    // For text lessons
+  videoUrl    String?    // For video lessons
+  fileUrl     String?    // For PDF lessons
+  duration    String?
+  order       Int
+  type        LessonType @default(TEXT)
+  isPreview   Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Foreign Keys
+  courseId    String
+  course      Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  // Relations
+  progress    LessonProgress[]
+
+  @@map("lessons")
+}
+
+model Enrollment {
+  id           String   @id @default(cuid())
+  enrolledAt   DateTime @default(now())
+  completedAt  DateTime?
+  progress     Float    @default(0) // Percentage 0-100
+  isCompleted  Boolean  @default(false)
+
+  // Foreign Keys
+  userId       String
+  courseId     String
+  user         User     @relation(fields: [userId], references: [id])
+  course       Course   @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
+  @@map("enrollments")
+}
+
+model LessonProgress {
+  id          String   @id @default(cuid())
+  isCompleted Boolean  @default(false)
+  completedAt DateTime?
+  watchTime   Int      @default(0) // In seconds
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Foreign Keys
+  userId      String
+  lessonId    String
+  user        User     @relation(fields: [userId], references: [id])
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@map("lesson_progress")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int      // 1-5 stars
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Foreign Keys
+  userId    String
+  courseId  String
+  user      User     @relation(fields: [userId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@map("reviews")
+}
+
+model Certificate {
+  id           String   @id @default(cuid())
+  certificateUrl String? // URL to generated PDF
+  issuedAt     DateTime @default(now())
+
+  // Foreign Keys
+  userId       String
+  courseId     String
+  user         User     @relation(fields: [userId], references: [id])
+  course       Course   @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
+  @@map("certificates")
+}
