@@ -1,7 +1,5 @@
 # 🎓 SmartLearn - E-Learning Platform
 
-![SmartLearn](https://github.com/yazzy01/learnsphere-starter/blob/main/screenshot.png?raw=true)
-
 🚀 **Live Demo:** [https://learnsphere-starter.vercel.app/](https://learnsphere-starter.vercel.app/)
 
 Master new skills with expert-led online courses. Join 50,000+ students learning web development, data science, design, and more. Learn smarter with our comprehensive e-learning platform.
@@ -333,7 +331,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Yassir Rzigui**  
 Full Stack Developer & EdTech Enthusiast
 
-- 🌐 Website: [Portfolio](https://yassir-rzigui.vercel.app)
+- 🌐 Website: [Portfolio](https://portfolio-yassir-blond.vercel.app)
 - 💼 LinkedIn: [Yassir Rzigui](https://linkedin.com/in/yassir-rzigui)
 - 📧 Email: rziguiyassir@gmail.com
 - 🐙 GitHub: [@yazzy01](https://github.com/yazzy01)
